@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Hover Effect — nguyenthuyvy.com</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Artifika&family=Asap+Condensed:wght@300;400;600;700&family=Merriweather:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ── RESET & TOKENS ─────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --back: #000000;
+    --white: #ffffff;
+    --grey: #eeeeee;
+    --orange: #F47E00;
+    --black-70: rgba(0,0,0,0.7);
+    --black-50: rgba(0,0,0,0.5);
+    --blur-amount: 6px;
+    --dim-opacity: 0.35;
+    --transition-speed: 0.45s;
+  }
+
+  :root[data-theme="dark"] {
+    --back: #ffffff;
+    --white: #0e0e0e;
+    --grey: #2a2a2a;
+    --black-70: rgba(255,255,255,0.7);
+    --black-50: rgba(255,255,255,0.5);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--white);
+    color: var(--back);
+    font-family: "Merriweather", serif;
+    min-height: 100vh;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  /* ── HEADER ─────────────────────────────────────── */
+  header {
+    border-bottom: 1px solid var(--grey);
+    padding: 15px 24px;
+    background-color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+  }
+
+  .logo {
+    font-family: "Artifika", serif;
+    font-size: 28px;
+    color: var(--back);
+    text-decoration: none;
+  }
+  .logo span { color: var(--orange); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .tagline {
+    font-family: "Asap Condensed", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--back);
+  }
+  .tagline span { color: var(--orange); }
+
+  .toggle-btn {
+    background: none;
+    border: 1px solid var(--grey);
+    border-radius: 50px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 13px;
+    color: var(--back);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+  }
+  .toggle-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+  /* ── DEMO BANNER ─────────────────────────────────── */
+  .demo-banner {
+    background: linear-gradient(135deg, #F47E00 0%, #ff9a2e 100%);
+    color: #fff;
+    text-align: center;
+    padding: 10px 20px;
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── MAIN ────────────────────────────────────────── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 50px 20px 100px;
+  }
+
+  .section-title {
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--back);
+    margin-bottom: 32px;
+  }
+  .section-title span { color: var(--orange); }
+
+  /* ── CONTENT ROW ─────────────────────────────────── */
+  .content-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+  }
+
+  /* ══════════════════════════════════════════════════
+     POSTS GRID — blur sibling effect
+     Kỹ thuật: hover vào .posts-grid → blur tất cả card con
+     rồi hover vào card cụ thể → unblur card đó
+  ══════════════════════════════════════════════════ */
+  .posts-grid {
+    width: 65%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 30px;
+    row-gap: 50px;
+    justify-content: space-between;
+  }
+
+  /* ── POST CARD base ──────────────────────────────── */
+  .post-card {
+    width: calc(50% - 15px);
+    transition:
+      opacity var(--transition-speed) ease,
+      filter var(--transition-speed) ease,
+      transform var(--transition-speed) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: filter, opacity, transform;
+    cursor: pointer;
+  }
+
+  /* ══ BLUR SIBLING EFFECT ══════════════════════════
+     Khi grid đang hover → tất cả card mờ đi
+  ══════════════════════════════════════════════════ */
+  .posts-grid:has(.post-card:hover) .post-card {
+    opacity: var(--dim-opacity);
+    filter: blur(var(--blur-amount));
+    transform: scale(0.98);
+  }
+
+  /* Card đang được hover → hiện rõ, nổi lên */
+  .posts-grid:has(.post-card:hover) .post-card:hover {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1.01);
+  }
+
+  /* ── IMAGE ───────────────────────────────────────── */
+  .post-image-link {
+    display: block;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    aspect-ratio: 4/3;
+    background: var(--grey);
+  }
+
+  .post-image-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition:
+      transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      filter 0.55s ease;
+    will-change: transform;
+  }
+
+  /* ── CARD BODY ───────────────────────────────────── */
+  .post-body { padding: 0; }
+
+  .post-meta {
+    font-size: 14px;
+    font-family: "Asap Condensed", sans-serif;
+    color: var(--black-70);
+    margin-bottom: 8px;
+    transition: letter-spacing 0.4s ease;
+  }
+  .post-meta a { color: inherit; text-decoration: none; }
+
+  .post-title {
+    display: inline;
+    font-size: 24px;
+    font-family: "Asap Condensed", sans-serif;
+    color: var(--back);
+    line-height: 1.15;
+    text-decoration: none;
+    background-image: linear-gradient(var(--orange), var(--orange));
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    background-position: left bottom;
+    padding-bottom: 2px;
+    transition:
+      color 0.35s ease,
+      background-size 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .post-excerpt {
+    font-size: 15px;
+    font-family: "Merriweather", serif;
+    color: var(--black-70);
+    line-height: 1.6;
+    font-weight: 300;
+    letter-spacing: 0.01px;
+    margin-top: 10px;
+    transition: opacity 0.4s ease;
+  }
+
+  /* ══ INDIVIDUAL CARD HOVER ════════════════════════ */
+  .post-card:hover .post-image-link img {
+    transform: scale(1.04);
+    filter: brightness(1.05);
+  }
+
+  .post-card:hover .post-title {
+    color: var(--orange);
+    background-size: 100% 1px;
+  }
+
+  .post-card:hover .post-excerpt { opacity: 0.72; }
+
+  .post-card:hover .post-meta { letter-spacing: 0.04em; }
+
+  /* ── SIDEBAR ─────────────────────────────────────── */
+  .sidebar {
+    width: 30%;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .author-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid var(--grey);
+    border-radius: 16px;
+  }
+
+  .author-avatar {
+    border-radius: 50%;
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    max-width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .author-name {
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--back);
+    margin-top: 10px;
+  }
+  .author-name span { color: var(--orange); }
+
+  .author-bio {
+    font-family: "Merriweather", serif;
+    font-size: 15px;
+    color: var(--black-50);
+    text-align: center;
+    line-height: 1.4;
+    margin-top: 6px;
+    font-weight: 300;
+  }
+
+  /* ── SETTINGS PANEL ──────────────────────────────── */
+  .settings-panel {
+    background: var(--grey);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .settings-panel label {
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--black-70);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+  }
+
+  .settings-panel input[type="range"] {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 3px;
+    background: var(--black-50);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  .settings-panel input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--orange);
+    cursor: pointer;
+  }
+
+  .settings-panel .val {
+    font-weight: 700;
+    color: var(--orange);
+    min-width: 32px;
+    display: inline-block;
+  }
+
+  .settings-title {
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black-50);
+    margin-bottom: 20px;
+  }
+
+  /* ── COMPARE SECTION ─────────────────────────────── */
+  .compare-section {
+    margin-top: 80px;
+    padding-top: 48px;
+    border-top: 1px solid var(--grey);
+  }
+
+  .compare-label {
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black-50);
+    margin-bottom: 24px;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .compare-item h4 {
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--black-50);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--grey);
+  }
+
+  /* Force states for compare */
+  .state-dimmed .post-image-link img { filter: blur(6px); }
+  .state-dimmed { opacity: 0.35; filter: blur(6px); transform: scale(0.98); }
+
+  .state-active { opacity: 1; filter: blur(0); transform: scale(1.01); }
+  .state-active .post-image-link img { transform: scale(1.04); filter: brightness(1.05); }
+  .state-active .post-title { color: var(--orange) !important; background-size: 100% 1px !important; }
+  .state-active .post-meta { letter-spacing: 0.04em; }
+  .state-active .post-excerpt { opacity: 0.72; }
+
+  /* ── FOOTER ──────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--grey);
+    padding: 20px 24px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background-color 0.4s, border-color 0.4s;
+  }
+  footer .logo { font-size: 22px; }
+  footer small {
+    font-family: "Asap Condensed", sans-serif;
+    color: var(--black-50);
+    font-size: 13px;
+  }
+
+  /* ── HINT TEXT ───────────────────────────────────── */
+  .hint {
+    font-family: "Asap Condensed", sans-serif;
+    font-size: 13px;
+    color: var(--black-50);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hint::before {
+    content: "↑";
+    color: var(--orange);
+    font-size: 16px;
+  }
+</style>
+</head>
+
+<body>
+
+  <!-- BANNER -->
+  <div class="demo-banner">⚡ DEMO — Blur Sibling Hover Effect · nguyenthuyvy.com</div>
+
+  <!-- HEADER -->
+  <header>
+    <a class="logo" href="#">Vy<span>.</span></a>
+    <div class="header-right">
+      <span class="tagline">write & note to get better<span>.</span></span>
+      <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span> Dark mode
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- SETTINGS PANEL -->
+    <div style="margin-top: 36px; margin-bottom: 8px;">
+      <div class="settings-title">⚙ Tùy chỉnh hiệu ứng</div>
+      <div class="settings-panel">
+        <label>
+          Blur
+          <input type="range" id="blurRange" min="2" max="16" value="6" step="1" oninput="updateBlur(this.value)">
+          <span class="val" id="blurVal">6px</span>
+        </label>
+        <label>
+          Mờ dần (opacity)
+          <input type="range" id="opacityRange" min="0" max="70" value="35" step="5" oninput="updateOpacity(this.value)">
+          <span class="val" id="opacityVal">35%</span>
+        </label>
+        <label>
+          Tốc độ
+          <input type="range" id="speedRange" min="150" max="800" value="450" step="50" oninput="updateSpeed(this.value)">
+          <span class="val" id="speedVal">0.45s</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 28px;">
+      <h3 class="section-title">Có gì mới <span>?</span></h3>
+    </div>
+
+    <p class="hint">Rê chuột vào từng bài để thấy hiệu ứng blur các card khác</p>
+
+    <!-- CONTENT ROW -->
+    <div class="content-row">
+
+      <!-- POSTS GRID -->
+      <div class="posts-grid" id="postsGrid">
+
+        <!-- Card 1 -->
+        <div class="post-card">
+          <a class="post-image-link" href="#">
+            <img
+              src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80"
+              alt="Một góc nhìn thực tế"
+            />
+          </a>
+          <div class="post-body">
+            <div class="post-meta"><a href="#">write</a> .&nbsp;&nbsp; 03.06.2026</div>
+            <a class="post-title" href="#">
+              Một góc nhìn thực tế hơn về cách mà chúng ta trả lời cho câu hỏi – Mình là ai?
+            </a>
+            <div class="post-excerpt">
+              Một góc nhìn thực tế hơn về cách mà chúng ta trả lời cho câu hỏi – mình là ai? 1. "Tìm hiểu bản thân" kiểu ngồi phòng, vô ích lắm! Bây giờ có một trào lưu rất hot: đọc [...]
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="post-card">
+          <a class="post-image-link" href="#">
+            <img
+              src="https://images.unsplash.com/photo-1536882240095-0379873feb4e?w=800&q=80"
+              alt="Thế nào là ổn định"
+            />
+          </a>
+          <div class="post-body">
+            <div class="post-meta"><a href="#">write</a> .&nbsp;&nbsp; 05.05.2026</div>
+            <a class="post-title" href="#">Thế nào là ổn định?</a>
+            <div class="post-excerpt">
+              Nội dung của bài viết này chia sẻ hành trình thay đổi nhận thức về khái niệm "ổn định" của mình, từ cách hiểu truyền thống sang một góc nhìn mà mình cho rằng là sâu sắc hơn. Tuy nhiên, [...]
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 (thêm để demo rõ hơn) -->
+        <div class="post-card">
+          <a class="post-image-link" href="#">
+            <img
+              src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&q=80"
+              alt="Đọc sách hiệu quả"
+            />
+          </a>
+          <div class="post-body">
+            <div class="post-meta"><a href="#">write</a> .&nbsp;&nbsp; 12.04.2026</div>
+            <a class="post-title" href="#">Đọc sách như thế nào để thực sự hiệu quả?</a>
+            <div class="post-excerpt">
+              Đọc sách không phải là cứ đọc nhiều là giỏi. Có một cách đọc khiến bạn thực sự thay đổi và nhớ lâu hơn. Hành trình tìm ra phương pháp đọc đúng của mình [...]
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="post-card">
+          <a class="post-image-link" href="#">
+            <img
+              src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80"
+              alt="Bình yên nội tâm"
+            />
+          </a>
+          <div class="post-body">
+            <div class="post-meta"><a href="#">note</a> .&nbsp;&nbsp; 28.03.2026</div>
+            <a class="post-title" href="#">Tìm bình yên trong sự hỗn loạn của cuộc sống hiện đại</a>
+            <div class="post-excerpt">
+              Cuộc sống ngày càng nhanh, càng ồn ào. Nhưng bình yên không phải là thứ ta tìm được ở bên ngoài – nó bắt đầu từ bên trong, từ cách ta nhìn nhận [...]
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="author-card">
+          <img
+            class="author-avatar"
+            src="https://nguyenthuyvy.com/wp-content/uploads/2026/05/470195047_3721103624700468_6739846266676060871_n.jpg"
+            alt="Nguyễn Thúy Vy"
+            onerror="this.src='https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&q=80'"
+          />
+          <div>
+            <div class="author-name">Nguyễn Thúy Vy<span>.</span></div>
+            <div class="author-bio">write & note to get better!</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── COMPARE BEFORE / AFTER ── -->
+    <div class="compare-section">
+      <div class="compare-label">So sánh — Trước &amp; Sau hiệu ứng blur</div>
+      <div class="compare-grid">
+
+        <!-- BEFORE: card bị mờ -->
+        <div class="compare-item">
+          <h4>Card bị blur (không hover)</h4>
+          <div class="post-card state-dimmed" style="pointer-events:none;">
+            <a class="post-image-link" href="#">
+              <img src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80" alt="dimmed"/>
+            </a>
+            <div class="post-body">
+              <div class="post-meta">write .&nbsp;&nbsp; 03.06.2026</div>
+              <a class="post-title" href="#">Một góc nhìn thực tế hơn về cách mà chúng ta trả lời...</a>
+              <div class="post-excerpt">Một góc nhìn thực tế hơn về cách mà chúng ta trả lời cho câu hỏi – mình là ai? [...]</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AFTER: card đang hover -->
+        <div class="compare-item">
+          <h4>Card đang hover (hiện rõ)</h4>
+          <div class="post-card state-active" style="pointer-events:none;">
+            <a class="post-image-link" href="#">
+              <img src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80" alt="active"/>
+            </a>
+            <div class="post-body">
+              <div class="post-meta">write .&nbsp;&nbsp; 03.06.2026</div>
+              <a class="post-title" href="#">Một góc nhìn thực tế hơn về cách mà chúng ta trả lời...</a>
+              <div class="post-excerpt">Một góc nhìn thực tế hơn về cách mà chúng ta trả lời cho câu hỏi – mình là ai? [...]</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <a class="logo" href="#">Vy <span>.</span></a>
+    <small>@2026 copyright</small>
+  </footer>
+
+  <script>
+    /* ── DARK MODE ─────────────────────────────────── */
+    function toggleTheme() {
+      const root = document.documentElement;
+      const btn  = document.getElementById('themeToggle');
+      if (root.dataset.theme === 'dark') {
+        root.removeAttribute('data-theme');
+        btn.innerHTML = '<span id="themeIcon">🌙</span> Dark mode';
+      } else {
+        root.dataset.theme = 'dark';
+        btn.innerHTML = '<span id="themeIcon">☀️</span> Light mode';
+      }
+    }
+
+    /* ── SLIDER CONTROLS ───────────────────────────── */
+    function updateBlur(val) {
+      document.documentElement.style.setProperty('--blur-amount', val + 'px');
+      document.getElementById('blurVal').textContent = val + 'px';
+    }
+
+    function updateOpacity(val) {
+      document.documentElement.style.setProperty('--dim-opacity', val / 100);
+      document.getElementById('opacityVal').textContent = val + '%';
+    }
+
+    function updateSpeed(val) {
+      const s = (val / 1000).toFixed(2) + 's';
+      document.documentElement.style.setProperty('--transition-speed', s);
+      document.getElementById('speedVal').textContent = s;
+    }
+  </script>
+
+</body>
+</html>
